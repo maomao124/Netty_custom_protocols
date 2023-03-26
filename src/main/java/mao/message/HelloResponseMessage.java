@@ -1,9 +1,6 @@
 package mao.message;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 
 /**
  * Project name(项目名称)：Netty_自定义协议
@@ -20,6 +17,7 @@ import lombok.ToString;
 
 
 @Data
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class HelloResponseMessage extends AbstractResponseMessage
@@ -29,9 +27,56 @@ public class HelloResponseMessage extends AbstractResponseMessage
      */
     private String body;
 
+    public HelloResponseMessage(String body)
+    {
+        this.body = body;
+    }
+
+    public HelloResponseMessage(boolean success, String reason, String body)
+    {
+        super(success, reason);
+        this.body = body;
+    }
+
     @Override
     public int getMessageType()
     {
         return HelloResponseMessage;
     }
+
+    //这里写静态方法简化类的频繁创建
+
+    /**
+     * 成功
+     *
+     * @param body 消息内容
+     * @return {@link HelloResponseMessage}
+     */
+    public static HelloResponseMessage success(String body)
+    {
+        return new HelloResponseMessage(true, null, body);
+    }
+
+
+    /**
+     * 失败
+     *
+     * @return {@link HelloResponseMessage}
+     */
+    public static HelloResponseMessage fail()
+    {
+        return new HelloResponseMessage(false, "未知", null);
+    }
+
+    /**
+     * 失败
+     *
+     * @param reason 原因
+     * @return {@link HelloResponseMessage}
+     */
+    public static HelloResponseMessage fail(String reason)
+    {
+        return new HelloResponseMessage(false, reason, null);
+    }
+
 }

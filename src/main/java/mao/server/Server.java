@@ -73,18 +73,21 @@ public class Server
                                 //得到内容
                                 String body = helloRequestMessage.getBody();
                                 log.info("姓名 " + name + " 和服务器打招呼：" + body);
-                                HelloResponseMessage helloResponseMessage = new HelloResponseMessage();
-                                helloResponseMessage.setSuccess(true);
+                                //HelloResponseMessage helloResponseMessage = new HelloResponseMessage();
+                                //helloResponseMessage.setSuccess(true);
                                 String respBody = "你好，" + name + "非常荣幸您能和我打招呼！";
-                                helloResponseMessage.setBody(respBody);
+                                //helloResponseMessage.setBody(respBody);
+                                HelloResponseMessage helloResponseMessage = HelloResponseMessage.success(respBody);
                                 //响应
                                 ctx.writeAndFlush(helloResponseMessage);
                             }
                             catch (Exception e)
                             {
-                                HelloResponseMessage helloResponseMessage = new HelloResponseMessage();
-                                helloResponseMessage.setSuccess(false);
-                                helloResponseMessage.setReason("服务器异常：" + e.getMessage());
+                                //HelloResponseMessage helloResponseMessage = new HelloResponseMessage();
+                                //helloResponseMessage.setSuccess(false);
+                                //helloResponseMessage.setReason();
+                                HelloResponseMessage helloResponseMessage =
+                                        HelloResponseMessage.fail("服务器异常：" + e.getMessage());
                                 //响应
                                 ctx.writeAndFlush(helloResponseMessage);
                             }
