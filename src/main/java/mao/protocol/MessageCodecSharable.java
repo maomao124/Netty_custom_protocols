@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
 import lombok.extern.slf4j.Slf4j;
+import mao.config.ServerConfig;
 import mao.message.Message;
 
 import java.io.ByteArrayInputStream;
@@ -34,8 +35,8 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
     /**
      * 编码
      *
-     * @param ctx ctx
-     * @param msg Message对象
+     * @param ctx     ctx
+     * @param msg     Message对象
      * @param outList List<Object>
      * @throws Exception 异常
      */
@@ -48,7 +49,7 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
         //字节的版本，可以支持协议的升级
         out.writeByte(1);
         //字节的序列化方式 jdk 0 , json 1
-        out.writeByte(0);
+        out.writeByte(ServerConfig.getSerializerAlgorithm().ordinal());
         //字节的指令类型
         out.writeByte(msg.getMessageType());
         //4个字节，为了双工通信，提供异步能力
@@ -56,13 +57,7 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
         //无意义，对齐填充
         out.writeByte(0xff);
         //获取内容的字节数组
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        //对象输出流
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-        //写入对象
-        objectOutputStream.writeObject(msg);
-        //得到二进制流
-        byte[] bytes = byteArrayOutputStream.toByteArray();
+        byte[] bytes = ServerConfig.getSerializerAlgorithm().serialize(msg);
         //写入长度消息
         out.writeInt(bytes.length);
         //写入内容消息
@@ -99,10 +94,12 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
         //内容
         byte[] bytes = new byte[length];
         in.readBytes(bytes, 0, length);
-        //对象输入流
-        ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(bytes));
-        //转换成对象
-        Message message = (Message) objectInputStream.readObject();
+        //得到序列化算法
+        SerializerAlgorithm serializerAlgorithm = SerializerAlgorithm.values()[serializerType];
+        //得到消息类型
+        Class<? extends Message> messageClass = Message.getMessageClass(messageType);
+        //转换
+        Message message = serializerAlgorithm.deserialize(messageClass, bytes);
         //打印
         log.debug("{}, {}, {}, {}, {}, {}", magicNum, version, serializerType, messageType, sequenceId, length);
         log.debug("{}", message);

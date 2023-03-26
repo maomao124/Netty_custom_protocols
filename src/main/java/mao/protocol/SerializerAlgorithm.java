@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * Project name(项目名称)：Netty_自定义协议
  * Package(包名): mao.protocol
- * Enum(枚举名): Algorithm
+ * Enum(枚举名): SerializerAlgorithm
  * Author(作者）: mao
  * Author QQ：1296193245
  * GitHub：https://github.com/maomao124/
@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
  * Description(描述)： 序列化算法，json采用fastjson
  */
 
-public enum Algorithm implements Serializer
+public enum SerializerAlgorithm implements Serializer
 {
     Java
             {
