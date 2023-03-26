@@ -25,7 +25,7 @@ public class PongMessage extends Message
     /**
      * 请求时间
      */
-    private int time;
+    private long time;
 
     public PongMessage(int time)
     {

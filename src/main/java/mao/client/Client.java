@@ -8,6 +8,7 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mao.config.ServerConfig;
 import mao.message.HelloRequestMessage;
@@ -57,12 +58,17 @@ public class Client
                                 .addLast(new SimpleChannelInboundHandler<PongMessage>()
                                 {
                                     @Override
-                                    protected void channelRead0(ChannelHandlerContext ctx, PongMessage msg)
+                                    protected void channelRead0(ChannelHandlerContext ctx,
+                                                                PongMessage pongMessage)
                                             throws Exception
                                     {
                                         try
                                         {
                                             log.info("得到服务器ping响应");
+                                            log.debug(pongMessage.toString());
+                                            long start = pongMessage.getTime();
+                                            long end = System.currentTimeMillis();
+                                            log.info("延时：" + (end - start) + "毫秒");
                                         }
                                         finally
                                         {
@@ -96,6 +102,7 @@ public class Client
 
         thread = new Thread(new Runnable()
         {
+            @SneakyThrows
             @Override
             public void run()
             {
@@ -112,6 +119,7 @@ public class Client
                     {
                         log.debug("发送ping消息");
                         PingMessage pingMessage = new PingMessage();
+                        pingMessage.setTime(System.currentTimeMillis());
                         channel.writeAndFlush(pingMessage);
                     }
                     else if ("2".equals(num))
@@ -132,6 +140,7 @@ public class Client
                         continue;
                     }
                     LockSupport.park();
+                    Thread.sleep(100);
                 }
             }
         }, "input");

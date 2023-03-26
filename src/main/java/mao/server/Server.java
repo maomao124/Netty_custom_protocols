@@ -77,7 +77,7 @@ public class Server
                                 log.info("姓名 " + name + " 和服务器打招呼：" + body);
                                 //HelloResponseMessage helloResponseMessage = new HelloResponseMessage();
                                 //helloResponseMessage.setSuccess(true);
-                                String respBody = "你好，" + name + "非常荣幸您能和我打招呼！";
+                                String respBody = "你好，" + name + ",非常荣幸您能和我打招呼！";
                                 //helloResponseMessage.setBody(respBody);
                                 HelloResponseMessage helloResponseMessage = HelloResponseMessage.success(respBody);
                                 //响应
