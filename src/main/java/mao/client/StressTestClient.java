@@ -24,25 +24,31 @@ import java.util.concurrent.locks.LockSupport;
 /**
  * Project name(项目名称)：Netty_自定义协议
  * Package(包名): mao.client
- * Class(类名): Client
+ * Class(类名): StressTestClient
  * Author(作者）: mao
  * Author QQ：1296193245
  * GitHub：https://github.com/maomao124/
  * Date(创建日期)： 2023/3/26
- * Time(创建时间)： 21:55
+ * Time(创建时间)： 22:39
  * Version(版本): 1.0
- * Description(描述)： 客户端
+ * Description(描述)： 压力测试，线程多了会触发full GC ，失败品
  */
 
 @Slf4j
-public class Client
+public class StressTestClient
 {
-
-    private static Thread thread;
+    private static Thread[] threads;
 
     public static void main(String[] args)
     {
-        NioEventLoopGroup nioEventLoopGroup = new NioEventLoopGroup(2);
+        Scanner input = new Scanner(System.in);
+        System.out.print("线程数：");
+        int threadNumber = input.nextInt();
+        if (threadNumber <= 0)
+        {
+            threadNumber = 1;
+        }
+        NioEventLoopGroup nioEventLoopGroup = new NioEventLoopGroup(threadNumber);
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(nioEventLoopGroup)
                 .channel(NioSocketChannel.class)
@@ -53,7 +59,7 @@ public class Client
                     {
 
                         ch.pipeline()
-                                .addLast(new LoggingHandler(LogLevel.DEBUG))
+                                .addLast(new LoggingHandler(LogLevel.WARN))
                                 .addLast(new MessageCodecSharable())
                                 .addLast(new SimpleChannelInboundHandler<PongMessage>()
                                 {
@@ -72,7 +78,7 @@ public class Client
                                         }
                                         finally
                                         {
-                                            LockSupport.unpark(thread);
+                                            //LockSupport.unpark(thread);
                                         }
                                     }
                                 })
@@ -90,7 +96,7 @@ public class Client
                                         }
                                         finally
                                         {
-                                            LockSupport.unpark(thread);
+                                            //LockSupport.unpark(thread);
                                         }
                                     }
                                 });
@@ -100,56 +106,25 @@ public class Client
                 InetSocketAddress("127.0.0.1", ServerConfig.getServerPort()));
         Channel channel = channelFuture.channel();
 
-        thread = new Thread(new Runnable()
+        threads = new Thread[threadNumber];
+        for (int i = 0; i < threadNumber; i++)
         {
-            @SneakyThrows
-            @Override
-            public void run()
+            threads[i] = new Thread(new Runnable()
             {
-                Scanner input = new Scanner(System.in);
-                while (true)
+                @SneakyThrows
+                @Override
+                public void run()
                 {
-                    System.out.println("---------------");
-                    System.out.println("1.ping");
-                    System.out.println("2.和服务器打招呼");
-                    System.out.println("3.退出");
-                    System.out.println("---------------");
-                    System.out.print("请输入序号:");
-                    String num = input.next();
-                    if ("1".equals(num))
+                    while (true)
                     {
                         log.debug("发送ping消息");
                         PingMessage pingMessage = new PingMessage();
                         pingMessage.setTime(System.currentTimeMillis());
                         channel.writeAndFlush(pingMessage);
                     }
-                    else if ("2".equals(num))
-                    {
-                        System.out.print("请输入您的姓名：");
-                        String name = input.next();
-                        System.out.println("请输入内容：");
-                        String body = input.next();
-                        log.debug("发送打招呼消息");
-                        HelloRequestMessage helloRequestMessage = new HelloRequestMessage();
-                        helloRequestMessage.setName(name);
-                        helloRequestMessage.setBody(body);
-                        //发送
-                        channel.writeAndFlush(helloRequestMessage);
-                    }
-                    else if ("3".equals(num))
-                    {
-                        channel.close();
-                        return;
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                    LockSupport.park();
-                    Thread.sleep(100);
                 }
-            }
-        }, "input");
+            }, "input-" + (i + 1));
+        }
 
         channelFuture.addListener(new GenericFutureListener<Future<? super Void>>()
         {
@@ -159,7 +134,10 @@ public class Client
                 if (future.isSuccess())
                 {
                     log.debug("客户端连接成功");
-                    thread.start();
+                    for (Thread thread : threads)
+                    {
+                        thread.start();
+                    }
                 }
                 else
                 {
@@ -175,7 +153,10 @@ public class Client
             {
                 log.info("关闭客户端");
                 nioEventLoopGroup.shutdownGracefully();
-                thread.interrupt();
+                for (Thread thread : threads)
+                {
+                    thread.interrupt();
+                }
             }
         });
     }
