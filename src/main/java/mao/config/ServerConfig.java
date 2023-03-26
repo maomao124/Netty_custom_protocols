@@ -16,7 +16,7 @@ import java.util.Properties;
  * Date(创建日期)： 2023/3/26
  * Time(创建时间)： 21:18
  * Version(版本): 1.0
- * Description(描述)： 无
+ * Description(描述)： 服务配置类
  */
 
 public class ServerConfig
