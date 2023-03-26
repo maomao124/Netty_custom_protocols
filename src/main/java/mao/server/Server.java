@@ -14,6 +14,7 @@ import mao.message.PingMessage;
 import mao.message.PongMessage;
 import mao.protocol.MessageCodecSharable;
 import mao.protocol.ProcotolFrameDecoder;
+import mao.protocol.SequenceIdGenerator;
 
 /**
  * Project name(项目名称)：Netty_自定义协议
@@ -54,6 +55,7 @@ public class Server
                         {
                             log.debug("ping消息:" + ctx.channel());
                             PongMessage pongMessage = new PongMessage();
+                            pongMessage.setTime(pingMessage.getTime());
                             ctx.writeAndFlush(pongMessage);
                         }
                     });

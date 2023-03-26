@@ -1,5 +1,8 @@
 package mao.message;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 /**
  * Project name(项目名称)：Netty_自定义协议
  * Package(包名): mao.message
@@ -13,8 +16,14 @@ package mao.message;
  * Description(描述)： ping消息
  */
 
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class PingMessage extends Message
 {
+    /**
+     * 时间
+     */
+    private int time;
 
     @Override
     public int getMessageType()

@@ -1,5 +1,9 @@
 package mao.message;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import mao.protocol.SequenceIdGenerator;
+
 /**
  * Project name(项目名称)：Netty_自定义协议
  * Package(包名): mao.message
@@ -13,8 +17,27 @@ package mao.message;
  * Description(描述)： pong 消息
  */
 
+
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class PongMessage extends Message
 {
+    /**
+     * 请求时间
+     */
+    private int time;
+
+    public PongMessage(int time)
+    {
+        this.time = time;
+        setSequenceId(SequenceIdGenerator.nextId());
+    }
+
+    public PongMessage()
+    {
+        setSequenceId(SequenceIdGenerator.nextId());
+    }
+
     @Override
     public int getMessageType()
     {

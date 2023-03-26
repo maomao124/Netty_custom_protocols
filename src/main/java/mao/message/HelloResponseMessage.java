@@ -1,6 +1,7 @@
 package mao.message;
 
 import lombok.*;
+import mao.protocol.SequenceIdGenerator;
 
 /**
  * Project name(项目名称)：Netty_自定义协议
@@ -17,7 +18,6 @@ import lombok.*;
 
 
 @Data
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class HelloResponseMessage extends AbstractResponseMessage
@@ -30,12 +30,19 @@ public class HelloResponseMessage extends AbstractResponseMessage
     public HelloResponseMessage(String body)
     {
         this.body = body;
+        setSequenceId(SequenceIdGenerator.nextId());
     }
 
     public HelloResponseMessage(boolean success, String reason, String body)
     {
         super(success, reason);
         this.body = body;
+        setSequenceId(SequenceIdGenerator.nextId());
+    }
+
+    public HelloResponseMessage()
+    {
+        setSequenceId(SequenceIdGenerator.nextId());
     }
 
     @Override
