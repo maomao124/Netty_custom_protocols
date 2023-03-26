@@ -7,13 +7,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.handler.timeout.IdleState;
-import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 import mao.message.HelloRequestMessage;
 import mao.message.PingMessage;
-import mao.protocol.MessageCodec;
 import mao.protocol.MessageCodecSharable;
 import mao.protocol.ProcotolFrameDecoder;
 

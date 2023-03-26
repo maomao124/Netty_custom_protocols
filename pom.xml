@@ -59,6 +59,13 @@
             <artifactId>netty-all</artifactId>
             <version>4.1.39.Final</version>
         </dependency>
+
+        <!--阿里巴巴的FastJson json解析-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.79</version>
+        </dependency>
     </dependencies>
 
     <build>
