@@ -9,7 +9,9 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
 import mao.message.HelloRequestMessage;
+import mao.message.HelloResponseMessage;
 import mao.message.PingMessage;
+import mao.message.PongMessage;
 import mao.protocol.MessageCodecSharable;
 import mao.protocol.ProcotolFrameDecoder;
 
@@ -23,7 +25,7 @@ import mao.protocol.ProcotolFrameDecoder;
  * Date(创建日期)： 2023/3/26
  * Time(创建时间)： 14:53
  * Version(版本): 1.0
- * Description(描述)： 无
+ * Description(描述)： 服务端
  */
 @Slf4j
 public class Server
@@ -48,9 +50,11 @@ public class Server
                     ch.pipeline().addLast(new SimpleChannelInboundHandler<PingMessage>()
                     {
                         @Override
-                        protected void channelRead0(ChannelHandlerContext ctx, PingMessage msg) throws Exception
+                        protected void channelRead0(ChannelHandlerContext ctx, PingMessage pingMessage) throws Exception
                         {
-
+                            log.debug("ping消息:" + ctx.channel());
+                            PongMessage pongMessage = new PongMessage();
+                            ctx.writeAndFlush(pongMessage);
                         }
                     });
 
@@ -58,8 +62,32 @@ public class Server
                     {
 
                         @Override
-                        protected void channelRead0(ChannelHandlerContext ctx, HelloRequestMessage msg) throws Exception
+                        protected void channelRead0(ChannelHandlerContext ctx, HelloRequestMessage helloRequestMessage)
+                                throws Exception
                         {
+                            try
+                            {
+                                log.debug("打招呼消息:" + ctx.channel());
+                                //得到姓名
+                                String name = helloRequestMessage.getName();
+                                //得到内容
+                                String body = helloRequestMessage.getBody();
+                                log.info("姓名 " + name + " 和服务器打招呼：" + body);
+                                HelloResponseMessage helloResponseMessage = new HelloResponseMessage();
+                                helloResponseMessage.setSuccess(true);
+                                String respBody = "你好，" + name + "非常荣幸您能和我打招呼！";
+                                helloResponseMessage.setBody(respBody);
+                                //响应
+                                ctx.writeAndFlush(helloResponseMessage);
+                            }
+                            catch (Exception e)
+                            {
+                                HelloResponseMessage helloResponseMessage = new HelloResponseMessage();
+                                helloResponseMessage.setSuccess(false);
+                                helloResponseMessage.setReason("服务器异常：" + e.getMessage());
+                                //响应
+                                ctx.writeAndFlush(helloResponseMessage);
+                            }
 
                         }
                     });

@@ -22,7 +22,6 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-@Builder
 public class HelloResponseMessage extends AbstractResponseMessage
 {
     /**
